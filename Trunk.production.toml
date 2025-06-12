@@ -1,8 +1,8 @@
-# Trunk configuration
+# Trunk configuration for production (GitHub Pages)
 [build]
 dist = "dist"
-# Default for local development
-public_url = "/"
+# GitHub Pages uses subdirectory
+public_url = "/leaflet-webgl-hybrid-poc/"
 
 [[hook]]
 stage = "post_build"

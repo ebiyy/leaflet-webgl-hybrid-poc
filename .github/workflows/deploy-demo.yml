@@ -64,8 +64,8 @@ jobs:
           # Build Tailwind CSS first
           ./tailwindcss -i ./src/tailwind.css -o ./src/tailwind-generated.css --minify
           
-          # Build with Trunk (wasm-opt flags are in HTML)
-          trunk build --release
+          # Build with Trunk using production config (wasm-opt flags are in HTML)
+          trunk build --release --config Trunk.production.toml
           
           # Copy service worker
           cp service-worker.js dist/
