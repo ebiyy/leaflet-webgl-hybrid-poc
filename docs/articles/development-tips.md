@@ -9,14 +9,14 @@ POC開発中に得られた細かなTipsやトラブルシューティング情�
 ```bash
 # Rust/WASMツールチェーンの統一管理
 mise use rust@latest
-mise use cargo:trunk@latest
+mise use cargo:dioxus-cli@0.6.3
 mise use cargo:wasm-pack@latest
 mise use cargo:wasm-bindgen-cli@latest
 ```
 
-### wasm-packとTrunkの競合回避策
+### wasm-packとDioxus CLIの競合回避策
 - wasm-packの代わりにwasm-bindgen直接使用で競合を回避
-- Trunk.tomlでwasm-opt無効化でビルド競合解消
+- Dioxus CLIは内部でwasm-optを自動実行
 
 ### トークン消費削減のビルドログ制御
 
@@ -44,9 +44,9 @@ use_effect(
 ```
 
 ### Tailwind CSSビルドエラー
-- **症状**: `trunk serveでdist/tailwind.cssが見つからない`
+- **症状**: `dx serveでtailwind-generated.cssが見つからない`
 - **原因**: pre_buildフックのタイミング問題
-- **対処**: `npm run build-css`実行後に`trunk serve`
+- **対処**: `npm install`実行後に`dx serve`
 
 ### マップモードのDOM要素待機タイムアウト
 - **症状**: #map要素の表示に10秒以上かかる場合がある

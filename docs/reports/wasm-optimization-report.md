@@ -42,12 +42,12 @@ This report documents the successful optimization of the Leaflet WebGL Hybrid PO
 
 ### 2. Dead Code Elimination
 
-#### Trunk Configuration
-- **Custom Build Script**: `build-optimized.sh`
+#### Dioxus CLI Configuration
+- **Built-in Optimization**: Dioxus CLI automatically applies wasm-opt in release builds
 - **Key Features**:
-  - Automated wasm-opt execution
-  - Size tracking and reporting
-  - Build artifact management
+  - Automatic wasm-opt execution
+  - Integrated size optimization
+  - No custom scripts required
 - **Impact**: Ensures consistent optimization across builds
 
 #### Dependency Analysis
@@ -196,5 +196,5 @@ This optimization work ensures the Leaflet WebGL Hybrid POC delivers a smooth us
 ---
 
 *Generated: 2025-06-12*
-*Tools Used: wasm-opt, cargo-bloat, twiggy, trunk*
+*Tools Used: wasm-opt, cargo-bloat, twiggy, dioxus-cli*
 *Build Environment: Rust 1.81.0, wasm-bindgen 0.2.95*

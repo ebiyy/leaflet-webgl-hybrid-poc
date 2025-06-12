@@ -71,8 +71,8 @@ UIフレームワーク = "Dioxus 0.6"
 レンダリング = "Canvas優先、WebGLオプション"
 
 # ビルド・最適化
-ビルドツール = "Trunk"
-最適化 = ["wasm-opt", "wasm-bindgen", "wasm-snip"]
+ビルドツール = "Dioxus CLI"
+最適化 = ["wasm-opt (自動適用)", "wasm-bindgen"]
 アロケータ = "wee_alloc"
 
 # テスト
@@ -191,19 +191,20 @@ E2E = "Playwright"
 ### ビルドコマンド
 ```bash
 # 開発ビルド
-trunk serve
+dx serve
 
 # 最適化ビルド
-./scripts/build-optimized.sh
+dx build --platform web --release
 
-# 静音ビルド（CI/CD用）
-./scripts/build-quiet.sh
+# ビルド出力パス
+target/dx/leaflet-webgl-hybrid-poc/release/web/public/
 ```
 
 ### パフォーマンステスト
 ```bash
 # ベンチマークモード起動
-trunk serve --open /benchmark/canvas/10000
+dx serve
+# ブラウザで http://localhost:8080/benchmark/canvas/10000 を開く
 
 # E2Eテスト実行
 npm test

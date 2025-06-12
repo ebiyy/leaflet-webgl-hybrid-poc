@@ -14,7 +14,7 @@ Leaflet.jsとWebGLを組み合わせたハイブリッドレンダリングの�
 - **スタイリング**: Tailwind CSS v4 (スタンドアロンCLI)
 - **地図ライブラリ**: Leaflet.js (CDN)
 - **WebGL**: Pixi.js (CDN)
-- **ビルドツール**: Trunk 0.21.14
+- **ビルドツール**: Dioxus CLI 0.6.3
 - **環境管理**: mise (Rust, Node.js等のランタイム管理)
 
 ## プロジェクト構造
@@ -30,6 +30,7 @@ Leaflet.jsとWebGLを組み合わせたハイブリッドレンダリングの�
 │   ├── components/    # レンダリングコンポーネント
 │   ├── routes/        # ルーティング
 │   └── utils/         # パフォーマンス計測ツール
+├── public/           # 静的アセット
 └── e2e/              # E2Eテスト
 ```
 
@@ -44,8 +45,8 @@ Leaflet.jsとWebGLを組み合わせたハイブリッドレンダリングの�
 - **バージョン**: Tailwind CSS v4 (スタンドアロンCLI)
 - **設定ファイル**: `tailwind.config.js`
 - **入力**: `src/tailwind.css`
-- **出力**: `dist/tailwind.css` (自動生成、git ignore推奨)
-- **ビルド**: Trunk pre_buildフックで自動実行
+- **出力**: `src/tailwind-generated.css` → `public/tailwind-generated.css` (ビルド時コピー)
+- **ビルド**: Dioxus.tomlのpre_buildフックで自動実行
 - **使用方針**: 
   - Tailwindユーティリティクラスを優先使用
   - カスタムCSSは最小限に留める
@@ -68,7 +69,7 @@ Leaflet.jsとWebGLを組み合わせたハイブリッドレンダリングの�
 
 ### 最適化のポイント
 1. **Tailwind CSS**: PurgeCSSで未使用クラスを削除（44KB）
-2. **WASM最適化**: wasm-opt、wasm-snip使用
+2. **WASM最適化**: Dioxus CLIの内蔵最適化機能
 3. **Service Worker**: オフライン対応とキャッシュ戦略
 4. **コード分割**: 必要に応じて実装
 
@@ -76,20 +77,20 @@ Leaflet.jsとWebGLを組み合わせたハイブリッドレンダリングの�
 
 ```bash
 # 開発サーバー起動 (ホットリロード対応)
-trunk serve
+dx serve
 
 # Tailwind CSS ビルド
 npm run build-css  # 本番用 (minified)
 npm run watch-css  # 開発用 (watch mode)
 
 # リリースビルド
-trunk build --release
-
-# WASMサイズ最適化ビルド
-./scripts/build-optimized.sh
+dx build --platform web --release
 
 # テスト実行
 cargo test
+
+# ビルド出力は以下に生成
+# target/dx/leaflet-webgl-hybrid-poc/release/web/public/
 ```
 
 ## レンダリング手法の比較
@@ -108,17 +109,18 @@ cargo test
 
 ## 重要な設定ファイル
 - `Cargo.toml` - Rust依存関係
-- `Trunk.toml` - ビルド設定（Tailwind pre_buildフック含む）
+- `Dioxus.toml` - ビルド設定（base_path、pre_buildフック、リソース設定）
 - `tailwind.config.js` - Tailwind設定
 - `package.json` - Node.js依存関係（Tailwind CLI）
-- `mise.toml` - 開発環境設定
+- `mise.toml` - 開発環境設定（cargo:dioxus-cli含む）
 
 ## クイックリファレンス
 
 ### エラー対処
 - `tailwindcss: command not found` → `npm install`実行
-- Trunk serve失敗 → `trunk clean && trunk build`
+- dx serve失敗 → `dx clean && dx build`
 - WASM関連エラー → `mise use rust@latest`確認
+- `dx: command not found` → `mise use cargo:dioxus-cli@0.6.3`実行
 
 ### デバッグツール
 - Chrome DevTools Performance タブ
@@ -146,11 +148,48 @@ Claude Codeには`mcp__playwright__`プレフィックスでPlaywrightツール�
 - 15分連続動作テスト（メモリリーク検証）
 
 #### テスト時の注意点
-- `trunk serve`でローカルサーバーを起動してから実行
+- `dx serve`でローカルサーバーを起動してから実行
 - `http://localhost:8080`でアクセス
+- GitHub Pagesでは`https://ebiyy.github.io/leaflet-webgl-hybrid-poc/`
 - スナップショットで要素のref属性を確認してから操作
 
 ### 本番デプロイ準備
 - GitHub Actions設定済み（`.github/workflows/`）
+  - `deploy-demo.yml` - GitHub Pagesデプロイ
+  - `size-budget.yml` - WASMサイズチェック
 - Cloudflare Pages対応
 - Service Worker実装済み
+
+## Dioxus.toml設定のポイント
+
+### GitHub Pagesデプロイ用設定
+```toml
+[web.app]
+base_path = "leaflet-webgl-hybrid-poc"  # サブディレクトリデプロイ対応
+```
+
+### リソース読み込み設定
+```toml
+[web.resource]
+dev = [
+    { rel = "script", src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" },
+    { rel = "script", src = "https://cdn.jsdelivr.net/npm/pixi.js@8.6.5/dist/pixi.min.js" },
+    # ...
+]
+```
+
+### ビルドフック
+```toml
+[[hooks.build]]
+stage = "pre"
+command = "npm"
+args = ["run", "build-css"]
+```
+
+## マイグレーションヒストリー
+
+### TrunkからDioxus CLIへの移行（2025/6/13）
+- ビルドツールをTrunkからDioxus CLIに変更
+- ビルド最適化スクリプトを削除（Dioxusが内部で実施）
+- GitHub Pagesデプロイ問題をbase_path設定で解決
+- CI/CDをtaiki-e/install-actionで高速化（5分→2分）

@@ -13,9 +13,10 @@ Cargo.lock
 /yarn.lock
 /pnpm-lock.yaml
 
-# Trunk
+# Trunk/Dioxus CLI
 /dist/
 /.trunk/
+/snippets/
 
 # IDE
 .idea/

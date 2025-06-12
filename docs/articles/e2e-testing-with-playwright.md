@@ -21,7 +21,7 @@ Leaflet WebGL Hybrid POCプロジェクトのPOCでは、Claude CodeのMCP Playw
 
 ```bash
 # ローカルサーバーの起動
-trunk serve
+dx serve
 
 # テストの実行（Claude Code内で）
 # http://localhost:8080 にアクセスして自動テスト開始
@@ -182,16 +182,16 @@ jobs:
       with:
         toolchain: stable
         
-    - name: Install Trunk
-      run: cargo install trunk
+    - name: Install Dioxus CLI
+      run: cargo install dioxus-cli
       
     - name: Install Playwright
       run: npx playwright install chromium
       
     - name: Build and Serve
       run: |
-        trunk build --release
-        trunk serve --release &
+        dx build --platform web --release
+        dx serve --release &
         sleep 5
         
     - name: Run E2E Tests

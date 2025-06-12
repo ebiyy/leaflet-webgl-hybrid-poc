@@ -29,7 +29,7 @@ Leaflet WebGL Hybrid POCを通じて得られたRust/Dioxusの実践的な評価
    - リファクタリングが安全
 
 2. **開発ツール**
-   - Trunkの自動リロードが高速（通常1-2秒）
+   - Dioxus CLIの自動リロードが高速（通常1-2秒）
    - コンパイルエラーが明確で解決しやすい
    - VS Code + rust-analyzerの組み合わせが優秀
 

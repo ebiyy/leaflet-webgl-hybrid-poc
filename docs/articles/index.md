@@ -34,7 +34,7 @@ POC開発中に遭遇したトラブルシューティング、実験的な試�
 - **スタイリング**: Tailwind CSS v4
 - **地図**: Leaflet.js
 - **WebGL**: Pixi.js
-- **ビルド**: Trunk 0.21.14
+- **ビルド**: Dioxus CLI 0.6.3
 - **テスト**: MCP Playwright
 
 ## 💡 得られた知見

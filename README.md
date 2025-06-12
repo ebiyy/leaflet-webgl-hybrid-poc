@@ -20,8 +20,8 @@ Leaflet.jsとWebGLを組み合わせたハイブリッドレンダリングの�
 - **言語**: Rust
 - **UIフレームワーク**: Dioxus 0.6
 - **地図描画**: Leaflet.js (Canvas/WebGL)
-- **ビルドツール**: Trunk
-- **最適化**: wasm-opt, wasm-bindgen
+- **ビルドツール**: Dioxus CLI 0.6.3
+- **最適化**: Dioxus内蔵の最適化機能
 
 ## 🚀 クイックスタート
 
@@ -41,10 +41,10 @@ cd leaflet-webgl-hybrid-poc
 # 依存関係をインストール（mise使用推奨）
 mise install
 mise use rust@latest
-mise use cargo:trunk@latest
+mise use cargo:dioxus-cli@0.6.3
 
 # 開発サーバーを起動
-trunk serve
+dx serve
 
 # ブラウザで http://localhost:8080 を開く
 ```
@@ -53,13 +53,12 @@ trunk serve
 
 ```bash
 # 開発ビルド
-trunk build
+dx build --platform web
 
 # 最適化ビルド（本番用）
-./scripts/build-optimized.sh
+dx build --platform web --release
 
-# サイズレポート付きビルド
-./scripts/build-quiet.sh
+# ビルド出力は target/dx/leaflet-webgl-hybrid-poc/release/web/public/ に生成されます
 ```
 
 ## 📊 パフォーマンスベンチマーク
@@ -77,6 +76,7 @@ trunk build
 - 初期サイズ: 556KB
 - 最終サイズ: 430KB（非圧縮）
 - **削減率: 23%**
+- Brotli圧縮後: 140KB
 
 詳細は[最適化レポート](docs/reports/wasm-optimization-report.md)を参照。
 
@@ -106,7 +106,8 @@ cargo test
 npm test
 
 # ベンチマーク
-trunk serve --open /benchmark/canvas/10000
+dx serve
+# ブラウザで http://localhost:8080/benchmark/canvas/10000 を開く
 ```
 
 ### デモページ

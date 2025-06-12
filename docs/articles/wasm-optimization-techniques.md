@@ -62,8 +62,8 @@ panic = "abort"       # パニック時の巻き戻し無効化
 
 ```bash
 #!/bin/bash
-# 1. リリースビルド
-trunk build --release
+# 1. リリースビルド（Dioxus CLIで自動最適化）
+dx build --platform web --release
 
 # 2. wasm-optによる最適化
 wasm-opt -Oz \
