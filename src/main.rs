@@ -51,19 +51,6 @@ fn main() {
 }
 
 fn app() -> Element {
-    // GitHub Pagesのサブディレクトリに対応
-    #[cfg(target_arch = "wasm32")]
-    {
-        if let Some(window) = web_sys::window() {
-            if let Ok(pathname) = window.location().pathname() {
-                // GitHub Pagesの場合、ベースパスを設定
-                if pathname.starts_with("/leaflet-webgl-hybrid-poc") {
-                    web_sys::console::log_1(&"Running on GitHub Pages, adjusting base path".into());
-                }
-            }
-        }
-    }
-    
     rsx! {
         Router::<Route> {}
     }

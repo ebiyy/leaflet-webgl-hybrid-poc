@@ -40,20 +40,14 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       
-      - name: Install Trunk
-        uses: jetli/trunk-action@v0.4.0
-        with:
-          version: 'latest'
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli --version 0.6.3
       
       - name: Install npm dependencies
         run: npm install
       
-      - name: Install build tools
+      - name: Install Tailwind CSS
         run: |
-          # Install wasm-bindgen-cli and wasm-snip
-          cargo install wasm-bindgen-cli wasm-snip
-          # Install wasm-opt via npm (currently not working via cargo)
-          npm install -g wasm-opt || echo "wasm-opt installation failed, continuing without it"
           # Download Tailwind CSS standalone CLI v4
           curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
           chmod +x tailwindcss-linux-x64
@@ -61,19 +55,17 @@ jobs:
       
       - name: Build optimized WASM
         run: |
-          # Build Tailwind CSS first
-          ./tailwindcss -i ./src/tailwind.css -o ./src/tailwind-generated.css --minify
+          # Build with Dioxus CLI (handles Tailwind CSS via pre_build hook)
+          dx build --platform web --release
           
-          # Build with Trunk using production config (wasm-opt flags are in HTML)
-          trunk build --release --config Trunk.production.toml
-          
-          # Copy service worker
-          cp service-worker.js dist/
+          # Move built files to dist directory for GitHub Pages
+          mkdir -p dist
+          cp -r target/dx/leaflet-webgl-hybrid-poc/release/web/public/* dist/
       
-      - name: Fix paths for GitHub Pages
-        run: |
-          # Fix service worker path
-          sed -i "s|'/service-worker.js'|'/leaflet-webgl-hybrid-poc/service-worker.js'|g" dist/index.html
+      # Dioxus CLI already handles base_path, so no path fixing needed
+      
+      - name: Create 404.html for SPA routing
+        run: cp dist/index.html dist/404.html
       
       - name: Setup Pages
         uses: actions/configure-pages@v4

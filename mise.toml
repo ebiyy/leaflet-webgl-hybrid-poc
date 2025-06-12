@@ -1,8 +1,6 @@
 [tools]
-"cargo:trunk" = "latest"
+"cargo:dioxus-cli" = "0.6.3"
 "cargo:twiggy" = "latest"
 "cargo:wasm-bindgen-cli" = "latest"
-"cargo:wasm-pack" = "latest"
-"cargo:wasm-snip" = "latest"
 node = "22.16.0"
 rust = "latest"
