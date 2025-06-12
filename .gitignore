@@ -1,0 +1,86 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# WASM and Web
+/dist/
+/pkg/
+/wasm-pack.log
+/node_modules/
+/package-lock.json
+/yarn.lock
+/pnpm-lock.yaml
+
+# Trunk
+/dist/
+/.trunk/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+/coverage/
+*.lcov
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Build artifacts
+*.wasm
+*.js
+*.d.ts
+!index.html
+!src/**/*.js
+!src/**/*.d.ts
+!tailwind.config.js
+!package.json
+
+# Benchmark results
+/benches/target/
+/benchmark-results/
+
+# Local configuration
+.mcp.json
+mise.toml.local
+
+# Generated files
+nohup.out
+tailwindcss
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+src/tailwind-generated.css

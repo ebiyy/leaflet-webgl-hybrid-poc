@@ -1,0 +1,136 @@
+name: WASM Size Budget Check
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+jobs:
+  size-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Install tools
+        run: |
+          cargo install wasm-bindgen-cli
+          npm install -g wasm-opt
+      
+      - name: Build WASM (PR)
+        run: |
+          cargo build --release --target wasm32-unknown-unknown
+          wasm-bindgen target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm \
+            --out-dir dist \
+            --target web \
+            --no-typescript
+          
+          # Get PR WASM size
+          PR_SIZE=$(stat -c%s dist/leaflet_webgl_hybrid_poc_bg.wasm || stat -f%z dist/leaflet_webgl_hybrid_poc_bg.wasm)
+          echo "PR_WASM_SIZE=$PR_SIZE" >> $GITHUB_ENV
+          echo "PR WASM size: $((PR_SIZE / 1024)) KB"
+      
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+      
+      - name: Build WASM (main)
+        run: |
+          cd main
+          cargo build --release --target wasm32-unknown-unknown
+          wasm-bindgen target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm \
+            --out-dir dist \
+            --target web \
+            --no-typescript
+          
+          # Get main WASM size
+          MAIN_SIZE=$(stat -c%s dist/leaflet_webgl_hybrid_poc_bg.wasm || stat -f%z dist/leaflet_webgl_hybrid_poc_bg.wasm)
+          echo "MAIN_WASM_SIZE=$MAIN_SIZE" >> $GITHUB_ENV
+          echo "Main WASM size: $((MAIN_SIZE / 1024)) KB"
+      
+      - name: Check size budget
+        run: |
+          PR_SIZE=${{ env.PR_WASM_SIZE }}
+          MAIN_SIZE=${{ env.MAIN_WASM_SIZE }}
+          BUDGET_LIMIT=204800  # 200KB in bytes
+          
+          echo "## 📊 WASM Size Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | Size | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| main | $((MAIN_SIZE / 1024)) KB | baseline |" >> $GITHUB_STEP_SUMMARY
+          echo "| PR | $((PR_SIZE / 1024)) KB | $([ $PR_SIZE -le $BUDGET_LIMIT ] && echo '✅ OK' || echo '❌ Over budget') |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          DIFF=$((PR_SIZE - MAIN_SIZE))
+          DIFF_PERCENT=$(( (DIFF * 100) / MAIN_SIZE ))
+          
+          if [ $DIFF -gt 0 ]; then
+            echo "**Size increased by $((DIFF / 1024)) KB (+${DIFF_PERCENT}%)**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Size decreased by $((-DIFF / 1024)) KB (${DIFF_PERCENT}%)**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Size Budget: 200 KB" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $PR_SIZE -gt $BUDGET_LIMIT ]; then
+            echo "❌ **PR exceeds size budget!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please optimize your code to stay under 200 KB." >> $GITHUB_STEP_SUMMARY
+            echo "Tips:" >> $GITHUB_STEP_SUMMARY
+            echo "- Remove unused dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "- Use \`--no-default-features\` where possible" >> $GITHUB_STEP_SUMMARY
+            echo "- Consider code splitting" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ **PR is within size budget**" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const pr_size = parseInt(process.env.PR_WASM_SIZE);
+            const main_size = parseInt(process.env.MAIN_WASM_SIZE);
+            const diff = pr_size - main_size;
+            const diff_percent = Math.round((diff * 100) / main_size);
+            const budget_limit = 204800;
+            
+            const body = `## 📦 WASM Size Impact
+            
+            | Metric | Value |
+            |--------|-------|
+            | Current size (main) | ${Math.round(main_size / 1024)} KB |
+            | New size (PR) | ${Math.round(pr_size / 1024)} KB |
+            | Diff | ${diff > 0 ? '+' : ''}${Math.round(diff / 1024)} KB (${diff > 0 ? '+' : ''}${diff_percent}%) |
+            | Budget limit | 200 KB |
+            | Status | ${pr_size <= budget_limit ? '✅ Within budget' : '❌ Over budget'} |
+            
+            ${pr_size > budget_limit ? '### ⚠️ Action Required\nThis PR exceeds the 200 KB size budget. Please optimize before merging.' : ''}`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

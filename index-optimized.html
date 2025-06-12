@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet WebGL Hybrid POC</title>
+    <link data-trunk rel="rust" />
+    
+    <!-- Critical CSS inline -->
+    <style>
+        /* Critical CSS - Above the fold styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        /* Home container - 最初に表示される */
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        }
+        
+        .home-container h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #ffcc00;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+        }
+        
+        .home-container p {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            color: #ccc;
+        }
+        
+        .route-navigation {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-width: 600px;
+        }
+        
+        .nav-button {
+            padding: 1.5rem;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        /* Loading skeleton */
+        @keyframes skeleton-loading {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        
+        .skeleton {
+            animation: skeleton-loading 1s linear infinite alternate;
+            background-color: #2a2a2a;
+            border-radius: 4px;
+        }
+    </style>
+    
+    <!-- Non-critical CSS deferred -->
+    <link rel="preload" href="./src/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="./src/style.css"></noscript>
+    
+    <!-- External dependencies preconnect -->
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    <!-- Pixi.js for WebGL rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js" defer></script>
+</head>
+<body>
+    <div id="main">
+        <!-- Initial loading skeleton -->
+        <div class="home-container">
+            <div class="skeleton" style="width: 300px; height: 80px; margin-bottom: 1rem;"></div>
+            <div class="skeleton" style="width: 400px; height: 30px; margin-bottom: 3rem;"></div>
+            <div class="route-navigation">
+                <div class="skeleton" style="height: 80px;"></div>
+                <div class="skeleton" style="height: 80px;"></div>
+                <div class="skeleton" style="height: 80px;"></div>
+                <div class="skeleton" style="height: 80px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Service Worker registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed:', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

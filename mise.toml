@@ -1,0 +1,8 @@
+[tools]
+"cargo:trunk" = "latest"
+"cargo:twiggy" = "latest"
+"cargo:wasm-bindgen-cli" = "latest"
+"cargo:wasm-pack" = "latest"
+"cargo:wasm-snip" = "latest"
+node = "22.16.0"
+rust = "latest"

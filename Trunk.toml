@@ -1,0 +1,29 @@
+# Trunk configuration
+[build]
+dist = "dist"
+public_url = "/"
+
+[[hook]]
+stage = "post_build"
+command = "sh"
+command_arguments = ["-c", "scripts/post-build-optimize.sh"]
+
+[watch]
+ignore = ["target", "dist"]
+
+[serve]
+port = 8080
+open = false
+
+# Disable Trunk's built-in wasm-opt to avoid conflicts
+[tools]
+wasm-opt = false
+
+[[hook]]
+stage = "pre_build"
+command = "npm"
+command_arguments = ["run", "build-css"]
+
+# Clean URLs for better UX
+# [clean_urls]
+# enabled = true
