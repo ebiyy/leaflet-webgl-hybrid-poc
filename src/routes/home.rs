@@ -57,11 +57,12 @@ pub fn Home() -> Element {
                         class: "bg-purple-600 hover:bg-purple-700 px-6 py-4 rounded-lg transition-colors duration-200 text-lg font-medium",
                         "マップモード (WebGL)"
                     }
-                    Link {
-                        to: "/benchmark/canvas/10000",
-                        class: "bg-green-600 hover:bg-green-700 px-6 py-4 rounded-lg transition-colors duration-200 text-lg font-medium",
-                        "ベンチマーク"
-                    }
+                    // ベンチマークルートは後で実装
+                    // Link {
+                    //     to: "/benchmark/canvas/10000",
+                    //     class: "bg-green-600 hover:bg-green-700 px-6 py-4 rounded-lg transition-colors duration-200 text-lg font-medium",
+                    //     "ベンチマーク"
+                    // }
                     Link {
                         to: "/chaos/1",
                         class: "bg-red-600 hover:bg-red-700 px-6 py-4 rounded-lg transition-colors duration-200 text-lg font-medium",
