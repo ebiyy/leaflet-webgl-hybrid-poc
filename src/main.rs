@@ -72,6 +72,8 @@ fn app() -> Element {
         }
         
         // アプリ本体
+        // 注: Dioxus CLIは自動的にbase_pathを処理するため、
+        // ここでは明示的な設定は不要
         Router::<Route> {}
     }
 }

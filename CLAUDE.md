@@ -77,7 +77,11 @@ Leaflet.jsとWebGLを組み合わせたハイブリッドレンダリングの�
 
 ```bash
 # 開発サーバー起動 (ホットリロード対応)
+# http://127.0.0.1:8080/ でアクセス可能
 dx serve
+
+# GitHub Pages用ビルド（base_path付き）
+DX_BASE_PATH=leaflet-webgl-hybrid-poc dx build --platform web --release
 
 # Tailwind CSS ビルド
 npm run build-css  # 本番用 (minified)
@@ -193,3 +197,9 @@ args = ["run", "build-css"]
 - ビルド最適化スクリプトを削除（Dioxusが内部で実施）
 - GitHub Pagesデプロイ問題をbase_path設定で解決
 - CI/CDをtaiki-e/install-actionで高速化（5分→2分）
+
+### 環境変数によるbase_path切り替え（2025/6/13）
+- Dioxus.tomlからbase_path固定値を削除
+- DX_BASE_PATH環境変数で動的に設定可能に
+- 開発時: http://127.0.0.1:8080/ でアクセス
+- 本番時: GitHub ActionsでDX_BASE_PATHを設定

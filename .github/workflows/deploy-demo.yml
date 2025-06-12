@@ -56,8 +56,11 @@ jobs:
           mv tailwindcss-linux-x64 tailwindcss
       
       - name: Build optimized WASM
+        env:
+          DX_BASE_PATH: leaflet-webgl-hybrid-poc
         run: |
           # Build with Dioxus CLI (handles Tailwind CSS via pre_build hook)
+          # DX_BASE_PATH環境変数でGitHub Pages用のbase pathを設定
           dx build --platform web --release
           
           # Move built files to dist directory for GitHub Pages

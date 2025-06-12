@@ -5,8 +5,6 @@ asset_dir = "public"
 default_platform = "web"
 
 [web.app]
-# GitHub Pagesのリポジトリ名に合わせる（開発時もこのパスを使用）
-base_path = "leaflet-webgl-hybrid-poc"
 # SPAルーティング用（404時にindex.htmlを返す）
 index_on_404 = true
 
