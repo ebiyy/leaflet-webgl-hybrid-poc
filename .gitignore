@@ -78,6 +78,8 @@ mise.toml.local
 # Generated files
 nohup.out
 tailwindcss
+benchmark_results.csv
+src/routes/chaos_original.rs
 
 # Playwright
 node_modules/
