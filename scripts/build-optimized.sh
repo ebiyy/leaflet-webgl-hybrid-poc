@@ -29,9 +29,9 @@ fi
 echo "🔨 Building with wee_alloc..."
 cargo build --release --target wasm32-unknown-unknown --features wee_alloc
 
-# Trunkを使ってビルド（HTMLの処理も含む）
-echo "🔨 Building with Trunk..."
-trunk build --release
+# Trunkを使ってビルド（HTMLの処理も含む、最適化は無効）
+echo "🔨 Building with Trunk (minification disabled)..."
+trunk build --release --minify=false
 
 # index-optimized.htmlがある場合は、それをベースに再処理
 if [ -f "index-optimized.html" ]; then
@@ -68,14 +68,12 @@ if command -v wasm-opt &> /dev/null; then
     # 元のWASMファイルサイズを記録
     ORIGINAL_SIZE=$(stat -f%z dist/leaflet-webgl-hybrid-poc_bg.wasm 2>/dev/null || stat -c%s dist/leaflet-webgl-hybrid-poc_bg.wasm)
     
-    # wasm-optでサイズ最適化
+    # wasm-optでサイズ最適化（互換性のあるフラグのみ使用）
     wasm-opt -Oz \
-        --enable-simd \
         --enable-bulk-memory \
         --enable-nontrapping-float-to-int \
         --strip-debug \
         --strip-producers \
-        --skip-pass=validate \
         dist/leaflet-webgl-hybrid-poc_bg.wasm \
         -o dist/leaflet-webgl-hybrid-poc_bg_opt.wasm
     

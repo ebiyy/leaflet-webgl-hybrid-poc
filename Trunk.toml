@@ -15,9 +15,9 @@ ignore = ["target", "dist"]
 port = 8080
 open = false
 
-# Disable Trunk's built-in wasm-opt to avoid conflicts
-[tools]
-wasm-opt = false
+# Skip wasm-opt in Trunk (we'll do it manually)
+# [tools]
+# wasm_opt = false
 
 [[hook]]
 stage = "pre_build"

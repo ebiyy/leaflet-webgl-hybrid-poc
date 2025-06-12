@@ -61,24 +61,16 @@ jobs:
       
       - name: Build optimized WASM
         run: |
-          chmod +x scripts/build-optimized.sh
-          ./scripts/build-optimized.sh
+          # Build with Trunk (wasm-opt flags are in HTML)
+          trunk build --release
+          
+          # Copy service worker
+          cp service-worker.js dist/
       
-      - name: Fix asset paths for GitHub Pages
+      - name: Fix paths for GitHub Pages
         run: |
-          # Fix CSS path in index.html
-          sed -i 's|href="./src/style.css"|href="./style.css"|g' dist/index.html
-          sed -i 's|href="./src/tailwind-generated.css"|href="./tailwind-generated.css"|g' dist/index.html
-          
-          # Copy CSS files to dist if they exist
-          [ -f "src/style.css" ] && cp src/style.css dist/
-          [ -f "src/tailwind-generated.css" ] && cp src/tailwind-generated.css dist/
-          
           # Fix service worker path
           sed -i "s|'/service-worker.js'|'/leaflet-webgl-hybrid-poc/service-worker.js'|g" dist/index.html
-          
-          # Copy leaflet_helpers.js if exists
-          [ -f "src/leaflet_helpers.js" ] && cp src/leaflet_helpers.js dist/
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
