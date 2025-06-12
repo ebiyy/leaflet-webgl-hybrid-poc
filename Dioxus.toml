@@ -9,6 +9,8 @@ default_platform = "web"
 base_path = "leaflet-webgl-hybrid-poc"
 # SPAルーティング用（404時にindex.htmlを返す）
 index_on_404 = true
+# カスタムHTMLテンプレートを使用
+index_html = "public/index.html"
 
 [web.watcher]
 reload_html = true
