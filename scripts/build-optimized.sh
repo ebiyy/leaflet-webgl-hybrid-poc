@@ -29,11 +29,20 @@ fi
 echo "🔨 Building with wee_alloc..."
 cargo build --release --target wasm32-unknown-unknown --features wee_alloc
 
-# HTMLとアセットをコピー（最適化版HTMLを使用）
+# Trunkを使ってビルド（HTMLの処理も含む）
+echo "🔨 Building with Trunk..."
+trunk build --release
+
+# index-optimized.htmlがある場合は、それをベースに再処理
 if [ -f "index-optimized.html" ]; then
-    cp index-optimized.html dist/index.html
-else
-    cp index.html dist/
+    # Trunk出力から必要なスクリプトタグを抽出
+    SCRIPT_TAGS=$(grep -E '<script.*leaflet-webgl-hybrid-poc.*</script>|<link.*modulepreload.*leaflet-webgl-hybrid-poc' dist/index.html | sed 's/^[[:space:]]*//')
+    
+    # index-optimized.htmlのdata-trunk部分を置換
+    cp index-optimized.html dist/index.html.tmp
+    # <link data-trunk rel="rust" />の行を見つけて置換
+    awk -v scripts="$SCRIPT_TAGS" '/<link data-trunk rel="rust"/ {print scripts; next} 1' dist/index.html.tmp > dist/index.html
+    rm dist/index.html.tmp
 fi
 cp src/style.css dist/
 cp src/tailwind-generated.css dist/
