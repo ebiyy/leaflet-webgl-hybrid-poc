@@ -63,6 +63,9 @@ jobs:
           # Move built files to dist directory for GitHub Pages
           mkdir -p dist
           cp -r target/dx/leaflet-webgl-hybrid-poc/release/web/public/* dist/
+          
+          # Fix index.html to include external dependencies
+          ./scripts/fix-index-html.sh dist
       
       # Dioxus CLI already handles base_path, so no path fixing needed
       
