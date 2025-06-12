@@ -4,6 +4,7 @@
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 use dioxus::prelude::*;
+use dioxus_document::{Link, Script};
 
 mod components;
 mod utils;
@@ -52,6 +53,25 @@ fn main() {
 
 fn app() -> Element {
     rsx! {
+        // head要素に入るタグ群
+        // Leaflet.js
+        Script { src: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" }
+        Link { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }
+        
+        // Pixi.js
+        Script { src: "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js" }
+        
+        // ローカルスタイル
+        Link { rel: "stylesheet", href: "./assets/style.css" }
+        Link { rel: "stylesheet", href: "./assets/tailwind-generated.css" }
+        
+        // 開発環境専用
+        if cfg!(debug_assertions) {
+            // 将来的にライブリロード用スクリプトを追加可能
+            // Script { src: "http://localhost:8098/livereload.js" }
+        }
+        
+        // アプリ本体
         Router::<Route> {}
     }
 }
