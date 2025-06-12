@@ -10,8 +10,20 @@ base_path = "leaflet-webgl-hybrid-poc"
 # SPAルーティング用（404時にindex.htmlを返す）
 index_on_404 = true
 
-[web.resource]
-# 外部スクリプトとスタイルを追加
+[web.resource.dev]
+# 外部スクリプトとスタイルを追加（開発環境）
+script = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"
+]
+style = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "./assets/style.css",
+    "./assets/tailwind-generated.css"
+]
+
+[web.resource.release]
+# 外部スクリプトとスタイルを追加（本番環境）
 script = [
     "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
     "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"
