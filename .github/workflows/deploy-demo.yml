@@ -61,6 +61,9 @@ jobs:
       
       - name: Build optimized WASM
         run: |
+          # Build Tailwind CSS first
+          ./tailwindcss -i ./src/tailwind.css -o ./src/tailwind-generated.css --minify
+          
           # Build with Trunk (wasm-opt flags are in HTML)
           trunk build --release
           
