@@ -9,8 +9,18 @@ default_platform = "web"
 base_path = "leaflet-webgl-hybrid-poc"
 # SPAルーティング用（404時にindex.htmlを返す）
 index_on_404 = true
-# カスタムHTMLテンプレートを使用
-index_html = "public/index.html"
+
+[web.resource]
+# 外部スクリプトとスタイルを追加
+script = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"
+]
+style = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "./assets/style.css",
+    "./assets/tailwind-generated.css"
+]
 
 [web.watcher]
 reload_html = true
