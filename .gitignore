@@ -64,6 +64,7 @@ Thumbs.db
 !src/**/*.d.ts
 !tailwind.config.js
 !package.json
+!service-worker.js
 
 # Benchmark results
 /benches/target/
