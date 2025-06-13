@@ -1,0 +1,147 @@
+name: Nightly Build Optimization
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * SUN'  # Weekly on Sunday
+
+jobs:
+  nightly-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Rust Nightly
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: wasm32-unknown-unknown
+          components: rust-src
+      
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+      
+      - name: Install build tools
+        run: |
+          # Install Dioxus CLI
+          cargo install dioxus-cli --version 0.6.3
+          
+          # Install WASM optimization tools
+          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_121/binaryen-version_121-x86_64-linux.tar.gz | tar xz
+          mv binaryen-version_121/bin/wasm-opt ./
+          
+          curl -L https://github.com/bytecodealliance/wasm-tools/releases/download/v1.223.0/wasm-tools-1.223.0-x86_64-linux.tar.gz | tar xz
+          mv wasm-tools-1.223.0-x86_64-linux/wasm-tools ./
+          
+          cargo install wasm-snip --version 0.4.0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      
+      - name: Install npm dependencies
+        run: npm install
+      
+      - name: Build with std optimization
+        env:
+          RUSTFLAGS: "-C link-arg=-zseparate-code -C panic=abort"
+          DX_BASE_PATH: leaflet-webgl-hybrid-poc
+        run: |
+          # Build with build-std
+          cargo +nightly build \
+            -Z build-std=panic_abort,core,alloc \
+            --target wasm32-unknown-unknown \
+            --release
+          
+          # Copy WASM for comparison
+          mkdir -p results
+          cp target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm results/nightly-std.wasm
+      
+      - name: Standard release build for comparison
+        env:
+          DX_BASE_PATH: leaflet-webgl-hybrid-poc
+        run: |
+          # Clean previous build
+          cargo clean
+          
+          # Standard build
+          dx build --platform web --release
+          
+          # Find and copy WASM
+          WASM_FILE=$(find target/dx -name "*.wasm" | head -1)
+          cp "$WASM_FILE" results/stable-release.wasm
+      
+      - name: Optimize all builds
+        run: |
+          for wasm in results/*.wasm; do
+            # Apply full optimization chain
+            ./wasm-opt -Oz --strip-dwarf --strip-producers --vacuum \
+                      --strip-target-features --remove-unused-module-elements \
+                      -o "${wasm}.opt1" "$wasm"
+            
+            wasm-snip -o "${wasm}.opt2" \
+                      --snip-rust-fmt-code --snip-rust-panicking-code \
+                      "${wasm}.opt1"
+            
+            ./wasm-tools strip "${wasm}.opt2" -o "${wasm}.optimized"
+            
+            # Brotli compress
+            brotli -q 11 -f -k "${wasm}.optimized"
+            
+            # Clean temp files
+            rm -f "${wasm}.opt1" "${wasm}.opt2"
+          done
+      
+      - name: Size comparison report
+        run: |
+          echo "## WASM Size Comparison Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Type | Original | Optimized | Brotli | Reduction |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|----------|-----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
+          
+          for wasm in results/*.wasm; do
+            if [[ -f "$wasm" ]]; then
+              ORIG_SIZE=$(stat -c%s "$wasm" 2>/dev/null || stat -f%z "$wasm")
+              OPT_SIZE=$(stat -c%s "${wasm}.optimized" 2>/dev/null || stat -f%z "${wasm}.optimized")
+              BR_SIZE=$(stat -c%s "${wasm}.optimized.br" 2>/dev/null || stat -f%z "${wasm}.optimized.br")
+              REDUCTION=$((100 - (OPT_SIZE * 100 / ORIG_SIZE)))
+              
+              ORIG_KB=$((ORIG_SIZE / 1024))
+              OPT_KB=$((OPT_SIZE / 1024))
+              BR_KB=$((BR_SIZE / 1024))
+              
+              BUILD_TYPE=$(basename "$wasm" .wasm)
+              echo "| $BUILD_TYPE | ${ORIG_KB}KB | ${OPT_KB}KB | ${BR_KB}KB | ${REDUCTION}% |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-comparison
+          path: results/
+          retention-days: 30
+      
+      - name: Create issue if significant improvement
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Compare sizes
+          STABLE_BR=$(stat -c%s results/stable-release.wasm.optimized.br 2>/dev/null || stat -f%z results/stable-release.wasm.optimized.br)
+          NIGHTLY_BR=$(stat -c%s results/nightly-std.wasm.optimized.br 2>/dev/null || stat -f%z results/nightly-std.wasm.optimized.br)
+          
+          IMPROVEMENT=$((STABLE_BR - NIGHTLY_BR))
+          PERCENT=$((IMPROVEMENT * 100 / STABLE_BR))
+          
+          if [ $PERCENT -gt 5 ]; then
+            gh issue create \
+              --title "Nightly build shows ${PERCENT}% size improvement" \
+              --body "The nightly build with \`-Z build-std\` produces a WASM file that is ${IMPROVEMENT} bytes smaller (${PERCENT}% reduction).
+              
+              - Stable build: $((STABLE_BR / 1024))KB
+              - Nightly build: $((NIGHTLY_BR / 1024))KB
+              
+              Consider switching to nightly builds for production deployments." \
+              --label "optimization"
+          fi
