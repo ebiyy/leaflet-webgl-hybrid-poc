@@ -66,6 +66,12 @@ jobs:
           # Move built files to dist directory for GitHub Pages
           mkdir -p dist
           cp -r target/dx/leaflet-webgl-hybrid-poc/release/web/public/* dist/
+          
+          # Fix asset paths: remove /./ pattern that causes issues with GitHub Pages
+          # This is a temporary workaround for Dioxus CLI 0.6.3
+          # Can be removed after upgrading to 0.6.4-alpha or later
+          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/index.html
+          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/404.html
       
       # Dioxus CLI already handles base_path, so no path fixing needed
       
