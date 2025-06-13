@@ -64,8 +64,8 @@ fn app() -> Element {
         Script { src: "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js" }
         
         // ローカルスタイル
-        Link { rel: "stylesheet", href: "/assets/style.css" }
-        Link { rel: "stylesheet", href: "/assets/tailwind-generated.css" }
+        Link { rel: "stylesheet", href: "assets/style.css" }
+        Link { rel: "stylesheet", href: "assets/tailwind-generated.css" }
         
         // 開発環境専用
         if cfg!(debug_assertions) {
