@@ -32,7 +32,7 @@ jobs:
       - name: Install Dioxus CLI
         uses: taiki-e/install-action@v2
         with:
-          tool: dioxus-cli@0.6.3
+          tool: dioxus-cli@0.7.0-alpha.1
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -62,12 +62,13 @@ jobs:
           
           # Fix asset paths: remove /./ pattern (Dioxus CLI 0.6.3 issue)
           sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/index.html
+          
+          # Inject CSS links into head (after the <meta charset="UTF-8" /> line)
+          sed -i '/<meta charset="UTF-8" \/>/a\    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/style.css">\n    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/tailwind-generated.css">\n    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />' dist/index.html
       
       - name: Create 404.html for SPA routing
         run: |
           cp dist/index.html dist/404.html
-          # Fix asset paths in 404.html as well
-          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/404.html
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
