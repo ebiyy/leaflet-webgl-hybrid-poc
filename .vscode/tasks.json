@@ -68,6 +68,31 @@
         "reveal": "always",
         "panel": "dedicated"
       }
+    },
+    {
+      "label": "analyze wasm size",
+      "type": "shell",
+      "command": "dx build --platform web --release && echo '\n📊 WASM Size Analysis:\n' && ls -lh target/wasm32-unknown-unknown/release/*.wasm target/dx/*/release/web/public/assets/*.wasm 2>/dev/null | grep -v '^d'",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "group": {
+        "kind": "test"
+      }
+    },
+    {
+      "label": "profile cpu (debug build)",
+      "type": "shell",
+      "command": "cargo flamegraph --bin leaflet-webgl-hybrid-poc --dev",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "dependsOn": ["cargo build"]
     }
   ],
   "inputs": [

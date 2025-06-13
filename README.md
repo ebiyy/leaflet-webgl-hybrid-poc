@@ -131,15 +131,25 @@ cargo expand --package leaflet-webgl-hybrid-poc components::map::Map
 # Ctrl+Shift+B → 各種タスクを選択
 ```
 
-#### パフォーマンス分析ツール
+#### パフォーマンス分析
 
+##### ローカル分析（VS Code タスク）
 ```bash
-# WASMサイズ分析
-mise use cargo:twiggy@latest  # インストール済み
+# VS Code内でCtrl+Shift+B → 以下のタスクを選択
+# - "analyze wasm size" : WASMサイズの確認
+# - "profile cpu (debug build)" : CPUプロファイリング
+```
+
+##### CI/定期分析
+- **PRごと**: `.github/workflows/size-budget.yml` - 200KBサイズ制限チェック
+- **週次**: `.github/workflows/wasm-analysis.yml` - 詳細なサイズ分析レポート
+
+##### 手動分析（必要時のみ）
+```bash
+# WASMサイズの詳細分析
 twiggy top target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm
 
-# プロファイリング（CPU使用率分析）
-mise use cargo:flamegraph@latest  # インストール済み
+# CPUプロファイリング（要sudo）
 cargo flamegraph --bin leaflet-webgl-hybrid-poc
 ```
 

@@ -1,0 +1,103 @@
+name: WASM Performance Analysis
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  schedule:
+    # 毎週月曜日の9時(JST)に実行
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  analyze-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      
+      - name: Install analysis tools
+        uses: taiki-e/install-action@v2
+        with:
+          tool: twiggy,cargo-dioxus-cli
+      
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+      
+      - name: Build WASM
+        run: |
+          dx build --platform web --release
+          # 最適化前のWASMファイルも保存
+          cp target/wasm32-unknown-unknown/release/leaflet-webgl-hybrid-poc.wasm before-opt.wasm
+      
+      - name: Analyze with Twiggy
+        run: |
+          echo "## 📊 WASM Size Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### File Sizes" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|------|" >> $GITHUB_STEP_SUMMARY
+          
+          BEFORE_SIZE=$(ls -lh before-opt.wasm | awk '{print $5}')
+          echo "| Before optimization | $BEFORE_SIZE |" >> $GITHUB_STEP_SUMMARY
+          
+          # 最適化後のWASMファイルを探す
+          OPTIMIZED_WASM=$(find target/dx -name "*.wasm" -type f | head -1)
+          if [ -n "$OPTIMIZED_WASM" ]; then
+            AFTER_SIZE=$(ls -lh "$OPTIMIZED_WASM" | awk '{print $5}')
+            echo "| After optimization | $AFTER_SIZE |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Top 20 Largest Functions (Before Optimization)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          twiggy top before-opt.wasm -n 20 >> $GITHUB_STEP_SUMMARY || echo "Twiggy analysis failed" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Monomorphizations Analysis" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          twiggy monos before-opt.wasm -n 10 >> $GITHUB_STEP_SUMMARY || echo "Monomorphization analysis failed" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-analysis-${{ github.sha }}
+          path: |
+            before-opt.wasm
+            target/dx/leaflet-webgl-hybrid-poc/release/web/public/assets/*.wasm
+      
+      - name: Create issue if size increases
+        if: github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const beforeSize = fs.statSync('before-opt.wasm').size;
+            const sizeInKB = Math.round(beforeSize / 1024);
+            
+            // 前回の分析結果と比較（将来的に実装）
+            // ここでは単純に500KB以上の場合に警告
+            if (sizeInKB > 500) {
+              const issueTitle = `⚠️ WASM size alert: ${sizeInKB} KB`;
+              const issueBody = `The WASM size has reached ${sizeInKB} KB. Consider optimization.
+              
+              See the [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.`;
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['performance', 'wasm-size']
+              });
+            }
