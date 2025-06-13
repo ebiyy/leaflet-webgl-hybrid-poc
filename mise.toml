@@ -1,5 +1,5 @@
 [tools]
-"cargo:dioxus-cli" = "0.7.0-alpha.1"
+"cargo:dioxus-cli" = "0.6.3"
 "cargo:twiggy" = "latest"
 "cargo:wasm-bindgen-cli" = "latest"
 node = "22.16.0"
