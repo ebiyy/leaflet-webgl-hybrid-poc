@@ -1,6 +1,8 @@
 use dioxus::prelude::*;
 use wasm_bindgen::closure::Closure;
-use crate::utils::fps_counter::startFPSCounter;
+use crate::utils::fps_counter::{startFPSCounter, stopFPSCounter};
+use std::rc::Rc;
+use std::cell::RefCell;
 
 #[derive(Clone, Debug, Default)]
 pub struct BenchmarkMetrics {
@@ -60,8 +62,16 @@ pub fn BenchmarkPanel(
     let mut metrics = use_signal(BenchmarkMetrics::default);
     let mut is_recording = use_signal(|| false);
     
-    // FPS計測を開始
+    // FPSコールバックを保持するためのSignal
+    let mut callback_holder = use_signal(|| None::<Rc<RefCell<Closure<dyn FnMut(f64)>>>>);
+    
+    // FPS計測を開始（初回のみ実行）
     use_effect(move || {
+        // 既にコールバックが設定されている場合は何もしない
+        if callback_holder.read().is_some() {
+            return;
+        }
+        
         let callback = Closure::new(move |current_fps: f64| {
             fps.set(current_fps);
             
@@ -73,25 +83,39 @@ pub fn BenchmarkPanel(
         
         startFPSCounter(&callback);
         
-        // クロージャを保持
-        std::mem::forget(callback);
+        // コールバックを保持
+        callback_holder.set(Some(Rc::new(RefCell::new(callback))));
     });
     
-    // パフォーマンス評価を計算
-    let performance_color = metrics().get_performance_color();
-    let performance_text = metrics().get_performance_text();
+    // コンポーネントがアンマウントされる時にFPSカウンターを停止
+    use_drop(move || {
+        stopFPSCounter();
+    });
     
-    let button_color = if is_recording() {
-        "#f44336"
-    } else {
-        "#4CAF50"
-    };
+    // パフォーマンス評価をメモ化（metricsが変更されたときのみ再計算）
+    let performance_evaluation = use_memo(move || {
+        let m = metrics.read();
+        (m.get_performance_color(), m.get_performance_text())
+    });
     
-    let button_text = if is_recording() {
-        "記録停止"
-    } else {
-        "記録開始"
-    };
+    // ボタンの状態をメモ化
+    let button_state = use_memo(move || {
+        if is_recording() {
+            ("#f44336", "記録停止")
+        } else {
+            ("#4CAF50", "記録開始")
+        }
+    });
+    
+    // FPSカテゴリをメモ化
+    let fps_category = use_memo(move || {
+        match fps() {
+            f if f >= 55.0 => "🔥 優秀",
+            f if f >= 30.0 => "✅ 良好",
+            f if f >= 15.0 => "⚠️ 警告",
+            _ => "🆘 危険",
+        }
+    });
     
     rsx! {
         div {
@@ -100,16 +124,18 @@ pub fn BenchmarkPanel(
             
             div {
                 class: "control-group",
-                label { "オブジェクト数: {object_count}" }
+                label { "オブジェクト数: {object_count()}" }
                 input {
                     r#type: "range",
                     min: "100",
                     max: "10000",
                     step: "100",
-                    value: "{object_count}",
+                    value: "{object_count()}",
                     oninput: move |evt| {
                         if let Ok(val) = evt.value().parse::<i32>() {
+                            web_sys::console::log_1(&format!("[BenchmarkPanel] Slider changed to: {}", val).into());
                             object_count.set(val);
+                            web_sys::console::log_1(&format!("[BenchmarkPanel] object_count Signal updated to: {}", object_count()).into());
                         }
                     }
                 }
@@ -126,7 +152,13 @@ pub fn BenchmarkPanel(
             div {
                 class: "metrics",
                 h3 { "パフォーマンスメトリクス" }
-                p { "現在のFPS: {fps:.1}" }
+                p { 
+                    {format!("現在のFPS: {:.1} ", fps())},
+                    span {
+                        class: "fps-category",
+                        {fps_category()}
+                    }
+                }
                 
                 div {
                     class: "recording-controls",
@@ -140,8 +172,8 @@ pub fn BenchmarkPanel(
                                 is_recording.set(true);
                             }
                         },
-                        style: "background: {button_color};",
-                        "{button_text}"
+                        style: format!("background: {};", button_state.read().0),
+                        {button_state.read().1}
                     }
                 }
                 
@@ -149,14 +181,15 @@ pub fn BenchmarkPanel(
                     div {
                         class: "metrics-results",
                         h4 { "記録結果" }
-                        p { "最小FPS: {metrics().min_fps:.1}" }
-                        p { "最大FPS: {metrics().max_fps:.1}" }
-                        p { "平均FPS: {metrics().avg_fps:.1}" }
+                        p { {format!("最小FPS: {:.1}", metrics().min_fps)} }
+                        p { {format!("最大FPS: {:.1}", metrics().max_fps)} }
+                        p { {format!("平均FPS: {:.1}", metrics().avg_fps)} }
                         p { "フレーム数: {metrics().frame_count}" }
                         p {
                             class: "performance-score",
-                            style: "font-weight: bold; color: {performance_color};",
-                            "パフォーマンス: {performance_text}"
+                            style: format!("font-weight: bold; color: {};", performance_evaluation.read().0),
+                            {"パフォーマンス: "},
+                            {performance_evaluation.read().1}
                         }
                     }
                 }
