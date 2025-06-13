@@ -51,9 +51,9 @@ jobs:
       
       - name: Install WASM optimization tools
         run: |
-          # Install binaryen for wasm-opt
-          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_121/binaryen-version_121-x86_64-linux.tar.gz | tar xz
-          mv binaryen-version_121/bin/wasm-opt ./
+          # Install binaryen (>= v127) for proper SIMD support
+          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_127/binaryen-version_127-x86_64-linux.tar.gz | tar xz
+          mv binaryen-version_127/bin/wasm-opt ./
           
           # Install wasm-tools
           curl -L https://github.com/bytecodealliance/wasm-tools/releases/download/v1.223.0/wasm-tools-1.223.0-x86_64-linux.tar.gz | tar xz
