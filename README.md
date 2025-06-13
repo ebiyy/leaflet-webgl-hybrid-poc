@@ -105,6 +105,9 @@ cargo test
 # E2Eテスト（Playwright）
 npm test
 
+# TypeScript型定義の生成
+npm run generate-types
+
 # ベンチマーク
 dx serve
 # ブラウザで http://localhost:8080/benchmark/canvas/10000 を開く
@@ -117,12 +120,26 @@ dx serve
 - `/benchmark/:type/:count` - ベンチマーク（type: dom/canvas/webgl, count: オブジェクト数）
 - `/chaos` - WebGLエフェクトデモ
 
+## 🔧 TypeScript連携
+
+ts-rsを使用してRust型からTypeScript型定義を自動生成できます：
+
+```bash
+# TypeScript型定義を生成
+npm run generate-types
+
+# 生成されたファイル: bindings/types.d.ts
+```
+
+これにより、JavaScript側とRust側で型安全な通信が可能になります。
+
 ## 📈 技術検証項目
 
 - [ ] WebWorker化によるレンダリング最適化
 - [ ] OffscreenCanvasの活用
 - [ ] WebGPU対応の検討
 - [ ] モバイルパフォーマンスの検証
+- [x] TypeScript型定義の自動生成
 
 ## 🤝 コントリビューション
 
