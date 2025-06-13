@@ -78,10 +78,10 @@ jobs:
       - name: Optimize all builds
         run: |
           for wasm in results/*.wasm; do
-            # Apply full optimization chain (with SIMD support)
+            # Apply full optimization chain (with SIMD and bulk memory support)
             ./wasm-opt -Oz --strip-dwarf --strip-producers --vacuum \
                       --strip-target-features --remove-unused-module-elements \
-                      --enable-simd \
+                      --enable-simd --enable-bulk-memory \
                       -o "${wasm}.opt1" "$wasm"
             
             wasm-snip -o "${wasm}.opt2" \

@@ -87,10 +87,10 @@ jobs:
           # Find WASM file
           WASM_FILE=$(find dist/assets -name "*.wasm" | head -1)
           
-          # Step 1: wasm-opt with aggressive settings (with SIMD support)
+          # Step 1: wasm-opt with aggressive settings (with SIMD and bulk memory support)
           ./wasm-opt -Oz --strip-dwarf --strip-producers --vacuum \
                     --strip-target-features --remove-unused-module-elements \
-                    --enable-simd \
+                    --enable-simd --enable-bulk-memory \
                     -o "${WASM_FILE}.tmp1" "$WASM_FILE"
           
           # Step 2: wasm-snip to remove panic formatting
