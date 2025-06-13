@@ -50,10 +50,13 @@ jobs:
           mv tailwindcss-linux-x64 tailwindcss
       
       - name: Install WASM optimization tools
+        env:
+          BINARYEN_VER: 123
         run: |
-          # Install binaryen (>= v127) for proper SIMD support
-          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_127/binaryen-version_127-x86_64-linux.tar.gz | tar xz
-          mv binaryen-version_127/bin/wasm-opt ./
+          # Install binaryen (latest: v123) for proper SIMD support
+          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VER}/binaryen-version_${BINARYEN_VER}-x86_64-linux.tar.gz -o binaryen.tar.gz
+          tar -xzf binaryen.tar.gz
+          sudo mv binaryen-version_${BINARYEN_VER}/bin/* /usr/local/bin
           
           # Install wasm-tools
           curl -L https://github.com/bytecodealliance/wasm-tools/releases/download/v1.223.0/wasm-tools-1.223.0-x86_64-linux.tar.gz | tar xz
@@ -88,10 +91,10 @@ jobs:
           WASM_FILE=$(find dist/assets -name "*.wasm" | head -1)
           
           # Step 1: wasm-opt with aggressive settings (with SIMD and bulk memory support)
-          ./wasm-opt -Oz --strip-dwarf --strip-producers --vacuum \
-                    --remove-unused-module-elements \
-                    --enable-simd --enable-bulk-memory \
-                    -o "${WASM_FILE}.tmp1" "$WASM_FILE"
+          wasm-opt -Oz --strip-dwarf --strip-producers --vacuum \
+                   --remove-unused-module-elements \
+                   --enable-simd --enable-bulk-memory \
+                   -o "${WASM_FILE}.tmp1" "$WASM_FILE"
           
           # Step 2: wasm-snip to remove panic formatting
           wasm-snip -o "${WASM_FILE}.tmp2" \
