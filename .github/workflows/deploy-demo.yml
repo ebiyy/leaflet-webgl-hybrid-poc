@@ -62,10 +62,12 @@ jobs:
           
           # Fix asset paths: remove /./ pattern (Dioxus CLI 0.6.3 issue)
           sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/index.html
-          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/404.html
       
       - name: Create 404.html for SPA routing
-        run: cp dist/index.html dist/404.html
+        run: |
+          cp dist/index.html dist/404.html
+          # Fix asset paths in 404.html as well
+          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/404.html
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
