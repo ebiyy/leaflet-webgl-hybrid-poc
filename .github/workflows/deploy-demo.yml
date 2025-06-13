@@ -69,20 +69,23 @@ jobs:
       
       - name: Bundle optimized WASM
         env:
-          DX_BASE_PATH: leaflet-webgl-hybrid-poc
           RUSTFLAGS: "-C target-feature=-reference-types,-multivalue"
         run: |
+          # GitHub Pages用にbase_pathを設定してビルド
+          # Dioxus.tomlのbase_pathを一時的に設定
+          sed -i 's/# base_pathは開発環境では設定しない（"\/"になる）/base_path = "leaflet-webgl-hybrid-poc"/' Dioxus.toml
+          
           # Build with Dioxus CLI
           dx build --platform web --release
+          
+          # Dioxus.tomlを元に戻す（CIでは必要ないが念のため）
+          git checkout Dioxus.toml
           
           # Move built files to dist directory
           mkdir -p dist
           cp -r target/dx/leaflet-webgl-hybrid-poc/release/web/public/* dist/
           
-          # Fix asset paths: remove /./ pattern (Dioxus CLI 0.6.3 issue)
-          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/index.html
-          
-          # Inject CSS links into head
+          # Inject CSS links into head (Dioxus base_path設定によりパスは自動的に正しくなる)
           sed -i '/<meta charset="UTF-8" \/>/a\    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/style.css">\n    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/tailwind-generated.css">' dist/index.html
           
           # Optimize WASM

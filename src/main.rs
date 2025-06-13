@@ -53,31 +53,6 @@ fn main() {
 }
 
 fn app() -> Element {
-    // GitHub Pagesのためのルーティング初期化
-    #[cfg(target_arch = "wasm32")]
-    {
-        if let Some(window) = web_sys::window() {
-            // GitHub Pagesでデプロイされているかを検出
-            if let Ok(hostname) = window.location().hostname() {
-                if hostname.contains("github.io") {
-                    if let Ok(pathname) = window.location().pathname() {
-                        let path_segments: Vec<&str> = pathname.split('/').filter(|s| !s.is_empty()).collect();
-                        if !path_segments.is_empty() {
-                            let repo_name = path_segments[0];
-                            web_sys::console::log_1(&format!("GitHub Pages detected. Repository: {}", repo_name).into());
-                            
-                            // SPAルーティングのための処理
-                            if path_segments.len() > 1 {
-                                let route = path_segments[1..].join("/");
-                                web_sys::console::log_1(&format!("Route detected: /{}", route).into());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
     rsx! {
         Router::<Route> {}
     }

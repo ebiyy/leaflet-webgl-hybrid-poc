@@ -7,7 +7,7 @@ default_platform = "web"
 [web.app]
 # SPAルーティング用（404時にindex.htmlを返す）
 index_on_404 = true
-# base_pathは環境変数DX_BASE_PATHで制御（開発時は未設定で"/"）
+# base_pathは開発環境では設定しない（"/"になる）
 
 
 [web.watcher]
