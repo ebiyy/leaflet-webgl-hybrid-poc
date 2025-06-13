@@ -50,8 +50,10 @@ jobs:
           mv tailwindcss-linux-x64 tailwindcss
       
       - name: Bundle optimized WASM
+        env:
+          DX_BASE_PATH: leaflet-webgl-hybrid-poc
         run: |
-          # Build with Dioxus CLI (base_path is set in Dioxus.toml)
+          # Build with Dioxus CLI
           dx build --platform web --release
           
           # Move built files to dist directory
