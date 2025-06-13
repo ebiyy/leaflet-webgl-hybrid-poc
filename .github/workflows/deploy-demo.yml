@@ -25,6 +25,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+        env:
+          RUSTFLAGS: "-C target-feature=-reference-types,-multivalue"
       
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
@@ -68,6 +70,7 @@ jobs:
       - name: Bundle optimized WASM
         env:
           DX_BASE_PATH: leaflet-webgl-hybrid-poc
+          RUSTFLAGS: "-C target-feature=-reference-types,-multivalue"
         run: |
           # Build with Dioxus CLI
           dx build --platform web --release
@@ -90,10 +93,14 @@ jobs:
           # Find WASM file
           WASM_FILE=$(find dist/assets -name "*.wasm" | head -1)
           
-          # Step 1: wasm-opt with aggressive settings (with all modern WASM features)
+          # Step 1: wasm-opt with aggressive settings (with compatible features only)
           wasm-opt -Oz --strip-dwarf --strip-producers --vacuum \
                    --remove-unused-module-elements \
-                   --all-features \
+                   --enable-bulk-memory \
+                   --enable-mutable-globals \
+                   --enable-sign-ext \
+                   --enable-simd \
+                   --enable-nontrapping-float-to-int \
                    -o "${WASM_FILE}.tmp1" "$WASM_FILE"
           
           # Step 2: wasm-snip to remove panic formatting
