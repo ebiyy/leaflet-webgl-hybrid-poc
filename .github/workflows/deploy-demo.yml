@@ -26,24 +26,18 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
       
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+      
+      - name: Install Dioxus CLI
+        uses: taiki-e/install-action@v2
+        with:
+          tool: dioxus-cli@0.6.4-alpha
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      
-      - name: Cache Rust dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      
-      - name: Install Dioxus CLI (fast method)
-        uses: taiki-e/install-action@v2
-        with:
-          tool: dioxus-cli@0.6.3
       
       - name: Install npm dependencies
         run: npm install
@@ -55,33 +49,21 @@ jobs:
           chmod +x tailwindcss-linux-x64
           mv tailwindcss-linux-x64 tailwindcss
       
-      - name: Build optimized WASM
-        env:
-          DX_BASE_PATH: leaflet-webgl-hybrid-poc
+      - name: Bundle optimized WASM
         run: |
-          # Build with Dioxus CLI (handles Tailwind CSS via pre_build hook)
-          # DX_BASE_PATH環境変数でGitHub Pages用のbase pathを設定
-          dx build --platform web --release
-          
-          # Move built files to dist directory for GitHub Pages
-          mkdir -p dist
-          cp -r target/dx/leaflet-webgl-hybrid-poc/release/web/public/* dist/
-          
-          # Fix asset paths: remove /./ pattern that causes issues with GitHub Pages
-          # This is a temporary workaround for Dioxus CLI 0.6.3
-          # Can be removed after upgrading to 0.6.4-alpha or later
-          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/index.html
-          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/404.html
+          # Use dx bundle instead of dx build for static sites
+          # This outputs directly to dist/ with proper paths
+          dx bundle --platform web --release --public-url leaflet-webgl-hybrid-poc
       
-      # Dioxus CLI already handles base_path, so no path fixing needed
-      
-      - name: Create 404.html for SPA routing
-        run: cp dist/index.html dist/404.html
+      - name: Prepare for GitHub Pages
+        run: |
+          # Create symlink for SPA routing (GitHub Pages converts to actual copy)
+          ln -s index.html dist/404.html
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
         with:
-          enablement: true  # GitHub Pagesを自動的に有効化
+          enablement: true
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
