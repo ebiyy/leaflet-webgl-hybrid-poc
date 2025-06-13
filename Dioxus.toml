@@ -7,6 +7,8 @@ default_platform = "web"
 [web.app]
 # SPAルーティング用（404時にindex.htmlを返す）
 index_on_404 = true
+# GitHub Pages用のbase path
+base_path = "leaflet-webgl-hybrid-poc"
 
 
 [web.watcher]
