@@ -1,6 +1,6 @@
 # Leaflet WebGL Hybrid POC
 
-[![WASM Size](https://img.shields.io/badge/WASM%20Size-618KB-yellow)](https://github.com/ebiyy/leaflet-webgl-hybrid-poc)
+[![WASM Size](https://img.shields.io/badge/WASM%20Size-0KB-brightgreen)](https://github.com/ebiyy/leaflet-webgl-hybrid-poc)
 [![Performance](https://img.shields.io/badge/10k%20Objects-75FPS-brightgreen)](https://github.com/ebiyy/leaflet-webgl-hybrid-poc)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
