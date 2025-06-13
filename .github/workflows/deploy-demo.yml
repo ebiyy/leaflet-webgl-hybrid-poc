@@ -75,15 +75,15 @@ jobs:
           # Dioxus.tomlのbase_pathを一時的に設定
           sed -i 's/# base_pathは開発環境では設定しない（"\/"になる）/base_path = "leaflet-webgl-hybrid-poc"/' Dioxus.toml
           
-          # Build with Dioxus CLI
-          dx build --platform web --release
+          # Bundle with Dioxus CLI
+          dx bundle --platform web --release
           
           # Dioxus.tomlを元に戻す（CIでは必要ないが念のため）
           git checkout Dioxus.toml
           
-          # Move built files to dist directory
-          mkdir -p dist
-          cp -r target/dx/leaflet-webgl-hybrid-poc/release/web/public/* dist/
+          # Bundle output is in dist/public, move to dist
+          mv dist/public/* dist/
+          rmdir dist/public
           
           # Inject CSS links and external scripts into head
           sed -i '/<meta charset="UTF-8" \/>/a\    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/style.css">\n    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/tailwind-generated.css">\n    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />\n    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>\n    <script src="https://cdn.jsdelivr.net/npm/pixi.js@8.6.5/dist/pixi.min.js"></script>' dist/index.html
