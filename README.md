@@ -96,6 +96,52 @@ leaflet-webgl-hybrid-poc/
 └── e2e/                     # E2Eテスト
 ```
 
+### 開発環境
+
+#### 必須ツール
+
+```bash
+# Rust開発ツール（mise経由でインストール推奨）
+mise use cargo:cargo-expand@latest  # マクロ展開確認
+mise use cargo:bacon@latest         # 継続的ビルド監視
+mise use cargo:cargo-watch@latest   # ファイル変更時の自動チェック
+```
+
+#### VS Code推奨拡張機能
+
+- **rust-analyzer** - Rustの言語サポート（必須）
+- **Error Lens** - エラーを行内に表示
+- **CodeLLDB** - デバッガ
+- **Better TOML** - TOML構文ハイライト
+- **Crates** - Cargo.toml内でクレートバージョン管理
+
+#### 開発コマンド
+
+```bash
+# 継続的チェック（ファイル保存時に自動実行）
+bacon
+
+# cargo-watchで自動チェック
+cargo watch -x check -x clippy
+
+# マクロ展開の確認（Signalの実装を見る）
+cargo expand --package leaflet-webgl-hybrid-poc components::map::Map
+
+# VS Code内でタスク実行
+# Ctrl+Shift+B → 各種タスクを選択
+```
+
+#### パフォーマンス分析ツール
+
+```bash
+# WASMサイズ分析（今後インストール予定）
+# mise use cargo:twiggy@latest
+# twiggy top target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm
+
+# プロファイリング（今後対応）
+# mise use cargo:flamegraph@latest
+```
+
 ### テスト
 
 ```bash

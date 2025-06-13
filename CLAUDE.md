@@ -203,3 +203,38 @@ args = ["run", "build-css"]
 - DX_BASE_PATH環境変数で動的に設定可能に
 - 開発時: http://127.0.0.1:8080/ でアクセス
 - 本番時: GitHub ActionsでDX_BASE_PATHを設定
+
+## 開発環境ツール（2025/6/13追加）
+
+### インストール済みツール
+```bash
+# Cargoツール（mise経由）
+cargo:cargo-expand@1.0.109  # マクロ展開確認
+cargo:bacon@3.15.0          # 継続的ビルド監視
+cargo:cargo-watch@8.5.3     # ファイル変更検知
+```
+
+### VS Code設定
+- `.vscode/settings.json` - rust-analyzer最適化、WASM32ターゲット設定
+- `.vscode/tasks.json` - タスクランナー（dx serve、bacon、cargo expand等）
+- `.vscode/extensions.json` - 推奨拡張機能リスト
+
+### 利用可能なIDE機能
+- **CodeScene診断** - 複雑度分析（Complex Method、Large Method警告）
+- **MCP Playwright** - E2Eテスト自動化（`mcp__playwright__browser_*`）
+- **cargo expand** - `use_signal`等のマクロ展開確認
+
+### よく使うコマンド（IDE連携）
+```bash
+# VS Code内でCtrl+Shift+B → タスク選択
+# または以下を直接実行：
+
+bacon                      # 継続的ビルド（推奨）
+cargo watch -x clippy      # Clippy警告監視
+cargo expand --package leaflet-webgl-hybrid-poc components::map  # マクロ展開
+```
+
+### 次のステップで導入予定
+- `twiggy` - WASMサイズ分析
+- `wasm-bindgen-cli` - WASM最適化
+- `cargo-flamegraph` - パフォーマンスプロファイリング
