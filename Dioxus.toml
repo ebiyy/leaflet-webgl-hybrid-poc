@@ -8,6 +8,9 @@ default_platform = "web"
 # SPAルーティング用（404時にindex.htmlを返す）
 index_on_404 = true
 
+[web.resource]
+style = ["style.css", "tailwind-generated.css"]
+
 [web.watcher]
 reload_html = true
 watch_path = ["src", "public"]
