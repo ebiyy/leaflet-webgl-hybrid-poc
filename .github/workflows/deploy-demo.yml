@@ -82,8 +82,8 @@ jobs:
           # Fix asset paths: remove /./ pattern (Dioxus CLI 0.6.3 issue)
           sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/index.html
           
-          # Inject CSS links and router init script into head
-          sed -i '/<meta charset="UTF-8" \/>/a\    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/style.css">\n    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/tailwind-generated.css">\n    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />\n    <script src="/leaflet-webgl-hybrid-poc/assets/router-init.js"></script>' dist/index.html
+          # Inject CSS links into head (router-init.js is already included via Dioxus.toml)
+          sed -i '/<meta charset="UTF-8" \/>/a\    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/style.css">\n    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/tailwind-generated.css">' dist/index.html
           
           # Optimize WASM
           echo "### WASM Optimization Report" >> $GITHUB_STEP_SUMMARY

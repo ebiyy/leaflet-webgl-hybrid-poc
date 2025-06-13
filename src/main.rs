@@ -32,7 +32,17 @@ fn main() {
         // デバッグ情報を追加
         web_sys::console::log_1(&"Starting WASM application...".into());
         
+        // router-init.jsを動的に追加（開発環境用）
         if let Some(window) = web_sys::window() {
+            if let Some(document) = window.document() {
+                if let Some(head) = document.head() {
+                    if let Ok(script) = document.create_element("script") {
+                        script.set_attribute("src", "assets/router-init.js").ok();
+                        head.append_child(&script).ok();
+                    }
+                }
+            }
+            
             if let Ok(pathname) = window.location().pathname() {
                 web_sys::console::log_1(&format!("Current pathname: {}", pathname).into());
             }

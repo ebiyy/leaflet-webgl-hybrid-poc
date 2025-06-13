@@ -12,7 +12,11 @@ web-sys = { version = "0.3.77", features = [
     "Performance",
     "PerformanceTiming",
     "console",
-    "Location"
+    "Location",
+    "Document",
+    "HtmlElement",
+    "Element",
+    "HtmlHeadElement"
 ] }
 js-sys = "0.3.77"
 wee_alloc = { version = "0.4.5", optional = true }
