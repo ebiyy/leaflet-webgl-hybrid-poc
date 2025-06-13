@@ -4,6 +4,7 @@
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 use dioxus::prelude::*;
+use dioxus_document::{Link, Script};
 
 mod components;
 mod utils;
@@ -54,6 +55,11 @@ fn main() {
 
 fn app() -> Element {
     rsx! {
+        // 外部ライブラリのCSS/JSを読み込む
+        Link { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }
+        Script { src: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" }
+        Script { src: "https://cdn.jsdelivr.net/npm/pixi.js@8.6.5/dist/pixi.min.js" }
+        
         Router::<Route> {}
     }
 }
