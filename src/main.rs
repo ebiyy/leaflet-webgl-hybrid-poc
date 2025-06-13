@@ -54,7 +54,6 @@ fn main() {
 
 fn app() -> Element {
     rsx! {
-        // アプリ本体
         Router::<Route> {}
     }
 }
