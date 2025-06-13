@@ -32,7 +32,7 @@ jobs:
       - name: Install Dioxus CLI
         uses: taiki-e/install-action@v2
         with:
-          tool: dioxus-cli@0.6.4-alpha.0
+          tool: dioxus-cli@0.6.3
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,15 +50,22 @@ jobs:
           mv tailwindcss-linux-x64 tailwindcss
       
       - name: Bundle optimized WASM
+        env:
+          DX_BASE_PATH: leaflet-webgl-hybrid-poc
         run: |
-          # Use dx bundle instead of dx build for static sites
-          # This outputs directly to dist/ with proper paths
-          dx bundle --platform web --release --public-url leaflet-webgl-hybrid-poc
+          # Build with Dioxus CLI
+          dx build --platform web --release
+          
+          # Move built files to dist directory
+          mkdir -p dist
+          cp -r target/dx/leaflet-webgl-hybrid-poc/release/web/public/* dist/
+          
+          # Fix asset paths: remove /./ pattern (Dioxus CLI 0.6.3 issue)
+          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/index.html
+          sed -i 's#/\./assets#/leaflet-webgl-hybrid-poc/assets#g' dist/404.html
       
-      - name: Prepare for GitHub Pages
-        run: |
-          # Create symlink for SPA routing (GitHub Pages converts to actual copy)
-          ln -s index.html dist/404.html
+      - name: Create 404.html for SPA routing
+        run: cp dist/index.html dist/404.html
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
