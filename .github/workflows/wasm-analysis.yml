@@ -25,9 +25,9 @@ jobs:
           targets: wasm32-unknown-unknown
       
       - name: Install analysis tools
-        run: |
-          cargo install dioxus-cli --version 0.6.3
-          cargo install twiggy
+        uses: taiki-e/install-action@v2
+        with:
+          tool: dioxus-cli@0.6.3,twiggy
       
       - name: Cache
         uses: Swatinem/rust-cache@v2
