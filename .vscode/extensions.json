@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "rust-lang.rust-analyzer",
+    "usernamehw.errorlens",
+    "vadimcn.vscode-lldb",
+    "tamasfe.even-better-toml",
+    "serayuzgur.crates",
+    "JScearcy.rust-doc-viewer",
+    "moalamri.inline-fold",
+    "ritwickdey.liveserver",
+    "ms-vscode.live-server"
+  ],
+  "unwantedRecommendations": [
+    "matklad.rust-analyzer"
+  ]
+}

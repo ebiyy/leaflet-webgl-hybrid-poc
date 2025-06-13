@@ -1,0 +1,51 @@
+{
+  "rust-analyzer.checkOnSave.command": "clippy",
+  "rust-analyzer.cargo.allFeatures": true,
+  "rust-analyzer.inlayHints.typeHints.enable": true,
+  "rust-analyzer.inlayHints.parameterHints.enable": true,
+  "rust-analyzer.inlayHints.chainingHints.enable": true,
+  "rust-analyzer.inlayHints.closureReturnTypeHints.enable": "always",
+  "rust-analyzer.diagnostics.disabled": ["unresolved-proc-macro"],
+  "rust-analyzer.lens.enable": true,
+  "rust-analyzer.lens.implementations.enable": true,
+  "rust-analyzer.lens.references.enable": true,
+  "rust-analyzer.lens.methodReferences.enable": true,
+  "rust-analyzer.lens.enumVariantReferences.enable": true,
+  "rust-analyzer.hover.actions.enable": true,
+  "rust-analyzer.hover.actions.run.enable": true,
+  "rust-analyzer.hover.actions.debug.enable": true,
+  "rust-analyzer.hover.actions.gotoTypeDef.enable": true,
+  "rust-analyzer.procMacro.enable": true,
+  "rust-analyzer.procMacro.attributes.enable": true,
+  "rust-analyzer.completion.postfix.enable": true,
+  "rust-analyzer.completion.autoimport.enable": true,
+  "[rust]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "rust-analyzer.cargo.target": "wasm32-unknown-unknown",
+  "rust-analyzer.cargo.features": ["web"],
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/node_modules/**": true,
+    "**/.git/**": true
+  },
+  "search.exclude": {
+    "**/target": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/public/tailwind-generated.css": true
+  },
+  "editor.rulers": [100],
+  "editor.wordWrap": "bounded",
+  "editor.wordWrapColumn": 100,
+  "errorLens.enabled": true,
+  "errorLens.delay": 300,
+  "errorLens.fontStyle": "italic",
+  "errorLens.messageBackgroundMode": "message",
+  "errorLens.excludeBySource": ["cSpell"],
+  "files.associations": {
+    "*.toml": "toml",
+    "Dioxus.toml": "toml"
+  }
+}

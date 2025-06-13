@@ -1,0 +1,87 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dx serve",
+      "type": "shell",
+      "command": "dx serve",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "cargo watch",
+      "type": "shell",
+      "command": "cargo watch -x check -x clippy",
+      "problemMatcher": ["$rustc"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "bacon",
+      "type": "shell",
+      "command": "bacon",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "expand macro",
+      "type": "shell",
+      "command": "cargo expand --package ${input:packageName} ${input:itemPath}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "build release",
+      "type": "shell",
+      "command": "DX_BASE_PATH=leaflet-webgl-hybrid-poc dx build --platform web --release",
+      "problemMatcher": ["$rustc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "tailwind watch",
+      "type": "shell",
+      "command": "npm run watch-css",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "packageName",
+      "type": "promptString",
+      "description": "Package name (e.g., leaflet-webgl-hybrid-poc)",
+      "default": "leaflet-webgl-hybrid-poc"
+    },
+    {
+      "id": "itemPath",
+      "type": "promptString",
+      "description": "Item path (e.g., components::map::Map)",
+      "default": ""
+    }
+  ]
+}
