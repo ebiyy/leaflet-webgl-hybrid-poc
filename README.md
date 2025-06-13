@@ -134,12 +134,13 @@ cargo expand --package leaflet-webgl-hybrid-poc components::map::Map
 #### パフォーマンス分析ツール
 
 ```bash
-# WASMサイズ分析（今後インストール予定）
-# mise use cargo:twiggy@latest
-# twiggy top target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm
+# WASMサイズ分析
+mise use cargo:twiggy@latest  # インストール済み
+twiggy top target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm
 
-# プロファイリング（今後対応）
-# mise use cargo:flamegraph@latest
+# プロファイリング（CPU使用率分析）
+mise use cargo:flamegraph@latest  # インストール済み
+cargo flamegraph --bin leaflet-webgl-hybrid-poc
 ```
 
 ### テスト

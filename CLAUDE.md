@@ -212,6 +212,8 @@ args = ["run", "build-css"]
 cargo:cargo-expand@1.0.109  # マクロ展開確認
 cargo:bacon@3.15.0          # 継続的ビルド監視
 cargo:cargo-watch@8.5.3     # ファイル変更検知
+cargo:twiggy@0.7.0          # WASMサイズ分析
+cargo:flamegraph@0.6.8      # CPUプロファイリング
 ```
 
 ### VS Code設定
@@ -234,7 +236,12 @@ cargo watch -x clippy      # Clippy警告監視
 cargo expand --package leaflet-webgl-hybrid-poc components::map  # マクロ展開
 ```
 
-### 次のステップで導入予定
-- `twiggy` - WASMサイズ分析
-- `wasm-bindgen-cli` - WASM最適化
-- `cargo-flamegraph` - パフォーマンスプロファイリング
+### パフォーマンス分析コマンド
+```bash
+# WASMサイズ分析
+twiggy top target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm
+twiggy dominators target/wasm32-unknown-unknown/release/leaflet_webgl_hybrid_poc.wasm
+
+# CPUプロファイリング（要: sudo権限）
+cargo flamegraph --bin leaflet-webgl-hybrid-poc
+```

@@ -3,6 +3,7 @@
 "cargo:cargo-expand" = "latest"
 "cargo:cargo-watch" = "latest"
 "cargo:dioxus-cli" = "0.6.3"
+"cargo:flamegraph" = "latest"
 "cargo:twiggy" = "latest"
 "cargo:wasm-bindgen-cli" = "latest"
 node = "22.16.0"
