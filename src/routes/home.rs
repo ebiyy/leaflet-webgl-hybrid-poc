@@ -1,28 +1,75 @@
 use dioxus::prelude::*;
 use crate::utils::performance_metrics::getLoadMetrics;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct LoadMetrics {
+    total_load_time: f64,
+    dom_load_time: Option<f64>,
+    wasm_init_time: Option<f64>,
+}
+
+// 非同期でロードメトリクスを取得
+async fn fetch_load_metrics() -> Result<LoadMetrics, String> {
+    // JavaScriptの結果を非同期で取得
+    let metrics_js = getLoadMetrics();
+    
+    if metrics_js.is_null() || metrics_js.is_undefined() {
+        return Err("No metrics available yet".to_string());
+    }
+    
+    // JavaScriptオブジェクトから情報を抽出
+    let total_time = js_sys::Reflect::get(&metrics_js, &"total_load_time".into())
+        .ok()
+        .and_then(|v| v.as_f64())
+        .ok_or("Failed to get total_load_time")?;
+    
+    let dom_time = js_sys::Reflect::get(&metrics_js, &"dom_load_time".into())
+        .ok()
+        .and_then(|v| v.as_f64());
+        
+    let wasm_time = js_sys::Reflect::get(&metrics_js, &"wasm_init_time".into())
+        .ok()
+        .and_then(|v| v.as_f64());
+    
+    Ok(LoadMetrics {
+        total_load_time: total_time,
+        dom_load_time: dom_time,
+        wasm_init_time: wasm_time,
+    })
+}
 
 #[component]
 pub fn Home() -> Element {
     let mut show_metrics = use_signal(|| false);
-    let mut load_metrics_text = use_signal(|| String::new());
     
-    use_effect(move || {
-        // ロードメトリクスを取得
-        let metrics_js = getLoadMetrics();
-        if !metrics_js.is_null() && !metrics_js.is_undefined() {
-            // JavaScriptオブジェクトから情報を抽出
-            let total_time = js_sys::Reflect::get(&metrics_js, &"total_load_time".into())
-                .ok()
-                .and_then(|v| v.as_f64())
-                .unwrap_or(0.0);
-            
-            if total_time > 0.0 {
-                load_metrics_text.set(format!(
+    // use_resourceを使用して非同期でメトリクスを取得（値を返すため）
+    let metrics_resource = use_resource(move || async move {
+        fetch_load_metrics().await
+    });
+    
+    // メトリクス表示テキストをメモ化
+    let metrics_display = use_memo(move || {
+        match &*metrics_resource.read() {
+            Some(Ok(metrics)) => {
+                let mut display = format!(
                     "Initial Load Time: {:.0}ms (Target: <3000ms) {}",
-                    total_time,
-                    if total_time < 3000.0 { "✅" } else { "❌" }
-                ));
+                    metrics.total_load_time,
+                    if metrics.total_load_time < 3000.0 { "✅" } else { "❌" }
+                );
+                
+                if let Some(dom_time) = metrics.dom_load_time {
+                    display.push_str(&format!("\nDOM Load: {:.0}ms", dom_time));
+                }
+                
+                if let Some(wasm_time) = metrics.wasm_init_time {
+                    display.push_str(&format!("\nWASM Init: {:.0}ms", wasm_time));
+                }
+                
+                display
             }
+            Some(Err(_)) => String::new(),
+            None => "Loading metrics...".to_string(),
         }
     });
     
@@ -71,27 +118,41 @@ pub fn Home() -> Element {
                 }
                 
                 // パフォーマンスメトリクス表示
-                if !load_metrics_text().is_empty() {
-                    div {
-                        class: "mt-8 p-4 bg-gray-800 rounded-lg",
-                        button {
-                            class: "text-sm text-gray-400 hover:text-white transition-colors",
-                            onclick: move |_| show_metrics.set(!show_metrics()),
-                            {format!("Performance Metrics {}", if show_metrics() { "[-]" } else { "[+]" })}
-                        }
-                        
-                        if show_metrics() {
-                            div {
-                                class: "mt-4 text-left text-sm",
-                                p {
-                                    class: "text-green-400 font-mono",
-                                    {load_metrics_text()}
-                                }
-                                p {
-                                    class: "text-gray-500 mt-2",
-                                    "Note: Actual 4G network will add communication latency on top of this time"
+                match &*metrics_resource.read() {
+                    Some(Ok(_)) => rsx! {
+                        div {
+                            class: "mt-8 p-4 bg-gray-800 rounded-lg",
+                            button {
+                                class: "text-sm text-gray-400 hover:text-white transition-colors",
+                                onclick: move |_| show_metrics.set(!show_metrics()),
+                                {format!("Performance Metrics {}", if show_metrics() { "[-]" } else { "[+]" })}
+                            }
+                            
+                            if show_metrics() {
+                                div {
+                                    class: "mt-4 text-left text-sm",
+                                    pre {
+                                        class: "text-green-400 font-mono whitespace-pre-wrap",
+                                        {metrics_display()}
+                                    }
+                                    p {
+                                        class: "text-gray-500 mt-2",
+                                        "Note: Actual 4G network will add communication latency on top of this time"
+                                    }
                                 }
                             }
+                        }
+                    },
+                    Some(Err(e)) => rsx! {
+                        div {
+                            class: "mt-8 p-4 bg-red-900 rounded-lg text-red-300",
+                            "Failed to load metrics: {e}"
+                        }
+                    },
+                    None => rsx! {
+                        div {
+                            class: "mt-8 p-4 bg-gray-800 rounded-lg text-gray-400",
+                            "Loading performance metrics..."
                         }
                     }
                 }
