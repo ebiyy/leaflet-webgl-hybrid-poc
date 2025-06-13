@@ -123,6 +123,9 @@ jobs:
           echo "#### Brotli compressed size:" >> $GITHUB_STEP_SUMMARY
           ls -lh dist/assets/*.wasm.br | awk '{print "- "$9": "$5}' >> $GITHUB_STEP_SUMMARY
       
+      - name: Create .nojekyll file
+        run: touch dist/.nojekyll
+      
       - name: Create 404.html for SPA routing
         run: |
           cp dist/index.html dist/404.html
