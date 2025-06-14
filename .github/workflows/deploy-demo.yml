@@ -85,9 +85,6 @@ jobs:
           mv dist/public/* dist/
           rmdir dist/public
           
-          # Inject CSS links and external scripts into head
-          sed -i '/<meta charset="UTF-8" \/>/a\    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/style.css">\n    <link rel="stylesheet" href="/leaflet-webgl-hybrid-poc/assets/tailwind-generated.css">\n    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />\n    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>\n    <script src="https://cdn.jsdelivr.net/npm/pixi.js@8.6.5/dist/pixi.min.js"></script>' dist/index.html
-          
           # Optimize WASM
           echo "### WASM Optimization Report" >> $GITHUB_STEP_SUMMARY
           echo "#### Original size:" >> $GITHUB_STEP_SUMMARY
