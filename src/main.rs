@@ -55,6 +55,9 @@ fn main() {
 
 fn app() -> Element {
     rsx! {
+        // Tailwind CSS
+        Link { rel: "stylesheet", href: "/assets/tailwind.css" }
+        
         // 外部ライブラリのCSS/JSを読み込む
         Link { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" }
         Script { src: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" }

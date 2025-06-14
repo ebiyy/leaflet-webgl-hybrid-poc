@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-use dioxus_router::prelude::*;
 use crate::utils::performance_metrics::getLoadMetrics;
 use serde::{Deserialize, Serialize};
 

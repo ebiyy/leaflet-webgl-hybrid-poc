@@ -91,3 +91,4 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 src/tailwind-generated.css
+assets/tailwind.css

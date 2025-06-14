@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build-css": "./tailwindcss -i ./src/tailwind.css -o ./src/tailwind-generated.css --minify",
-    "watch-css": "./tailwindcss -i ./src/tailwind.css -o ./src/tailwind-generated.css --watch",
+    "build-css": "./tailwindcss -i ./input.css -o ./assets/tailwind.css --minify",
+    "watch-css": "./tailwindcss -i ./input.css -o ./assets/tailwind.css --watch",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",

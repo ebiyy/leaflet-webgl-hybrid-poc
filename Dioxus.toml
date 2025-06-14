@@ -12,7 +12,7 @@ index_on_404 = true
 
 [web.watcher]
 reload_html = true
-watch_path = ["src", "public"]
+watch_path = ["src", "public", "assets"]
 
 [[web.pre_build]]
 command = "npm"
@@ -20,7 +20,7 @@ command_arguments = ["run", "build-css"]
 
 [[web.pre_build]]
 command = "cp"
-command_arguments = ["src/tailwind-generated.css", "public/"]
+command_arguments = ["assets/tailwind.css", "public/"]
 
 [bundle]
 # リリースビルド時の設定
