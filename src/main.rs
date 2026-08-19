@@ -1,8 +1,3 @@
-// wee_allocを使用してWASMバイナリサイズを削減
-#[cfg(feature = "wee_alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 use dioxus::prelude::*;
 use dioxus_document::{Link, Script};
 

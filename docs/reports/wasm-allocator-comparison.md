@@ -1,5 +1,9 @@
 # WASMアロケータ比較レポート
 
+> **注記 (2026-08-19)**: `wee_alloc` はメンテナンス終了（GHSA-rc23-xxgq-x27g）のため削除しました。
+> 現在はRust標準のデフォルトアロケータ（dlmalloc）を使用しています。
+> 経緯は [ADR-004](../ADR/004-drop-wee-alloc.md) を参照。
+
 ## 概要
 wee_alloc vs dlmalloc (デフォルト) の比較結果
 
@@ -52,10 +56,10 @@ cargo build --release --target wasm32-unknown-unknown --no-default-features
 - 長時間動作するアプリケーション
 
 ## 現在の設定
-Cargo.tomlでwee_allocをデフォルトで有効化済み：
+wee_allocは削除済み。Rust標準のデフォルトアロケータ（dlmalloc）を使用：
 ```toml
 [features]
-default = ["wee_alloc"]
+default = []
 ```
 
 ## ベンチマーク実行方法
@@ -71,5 +75,6 @@ ls -lh target/dx/*/release/web/public/assets/*.wasm
 ```
 
 ## 結論
-POCの目標（140KB）達成のため、現在はwee_allocを採用。
-本番環境では要再評価。
+POC期間中は140KB目標のためwee_allocを採用していたが、
+メンテナンス終了に伴い削除しdlmallocへ回帰した（生バイナリで +7,010 bytes / +0.51%）。
+サイズバジェット640KBに対して余裕があり、実用上の影響はない。

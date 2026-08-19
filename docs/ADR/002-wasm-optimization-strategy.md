@@ -4,6 +4,12 @@
 **ステータス**: 承認済み  
 **決定者**: Leaflet WebGL Hybrid POC開発チーム  
 
+> **注記 (2026-08-19)**: 本ADRの `wee_alloc` に関する部分は
+> [ADR-004](004-drop-wee-alloc.md) により置換されました。
+> `wee_alloc` はメンテナンス終了（GHSA-rc23-xxgq-x27g）のため削除され、
+> 現在はRust標準のデフォルトアロケータを使用しています。
+> それ以外のビルド最適化設定（opt-level, LTO, codegen-units, panic=abort, strip）は有効なままです。
+
 ## コンテキスト
 
 Webアプリケーションにおいて初回ロード時間は重要なUX指標。特にモバイル環境（4G回線）では3秒以内のロードが求められる。
