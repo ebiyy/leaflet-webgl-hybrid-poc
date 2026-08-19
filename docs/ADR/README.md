@@ -13,6 +13,7 @@ Architecture Decision Record（ADR）は、プロジェクトにおける重要�
 | [001](001-map-rendering-technology.md) | 地図レンダリング技術の選定 | 承認済み | 2025-06-12 |
 | [002](002-wasm-optimization-strategy.md) | WASM最適化戦略 | 承認済み | 2025-06-12 |
 | [003](003-state-management-signals.md) | 状態管理とシグナルの使用 | 承認済み | 2025-06-12 |
+| [004](004-drop-wee-alloc.md) | wee_allocの廃止とデフォルトアロケータへの回帰 | 承認済み | 2026-08-19 |
 
 ## ADRのフォーマット
 

@@ -8,6 +8,12 @@ Leaflet WebGL Hybrid POCプロジェクトのPOCで、Rust/WASMアプリケー�
 
 ### wee_allocの導入
 
+> **注記 (2026-08-19)**: `wee_alloc` はメンテナンス終了（GHSA-rc23-xxgq-x27g）のため削除しました。
+> 現在はRust標準のデフォルトアロケータ（dlmalloc）を使用しています。
+> 経緯は [ADR-004](../ADR/004-drop-wee-alloc.md) を参照。
+> 以下は当時の記録です。新規プロジェクトでは採用しないでください。
+
+
 ```toml
 [dependencies]
 wee_alloc = "0.4"
