@@ -48,16 +48,26 @@ Rust標準のデフォルトアロケータ（wasm32では dlmalloc）を使用�
 
 ## 結果
 
-サイズ影響（`cargo build --release --target wasm32-unknown-unknown`、
-wasm-bindgen/wasm-opt適用前の生バイナリ）:
+サイズ影響（実測、macOS aarch64 / Rust 1.91.1 / dioxus-cli 0.6.3）:
+
+`cargo build --release --target wasm32-unknown-unknown`（生バイナリ）:
 
 | 構成 | サイズ | 差分 |
 |------|--------|------|
 | wee_alloc あり | 1,378,849 bytes | baseline |
 | wee_alloc なし | 1,385,859 bytes | +7,010 bytes (+0.51%) |
 
-最終的な配信サイズ（wasm-opt / wasm-snip / wasm-tools strip 適用後）は
-サイズバジェット 640KB に対して十分な余裕があり、この増加は許容範囲。
+`dx bundle --platform web --release`（wasm-bindgen適用後、wasm-opt適用前）:
+
+| 構成 | サイズ | 差分 |
+|------|--------|------|
+| wee_alloc あり | 601,373 bytes (587 KB) | baseline |
+| wee_alloc なし | 607,949 bytes (593 KB) | +6,576 bytes (+1.09%) |
+
+サイズバジェットは 640KB（`.github/workflows/size-budget.yml`）。
+バンドル時点で 593KB とバジェット内に収まっており、
+デプロイ時にはさらに wasm-opt `-Oz` / wasm-snip / wasm-tools strip が適用されるため、
+この増加は許容範囲。
 
 副次的な効果として、割り当て性能とメモリ断片化耐性は改善する見込み。
 これは10,000オブジェクト描画のような割り当て頻度の高い経路にとってはむしろ有利。

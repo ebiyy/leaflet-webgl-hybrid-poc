@@ -76,5 +76,6 @@ ls -lh target/dx/*/release/web/public/assets/*.wasm
 
 ## 結論
 POC期間中は140KB目標のためwee_allocを採用していたが、
-メンテナンス終了に伴い削除しdlmallocへ回帰した（生バイナリで +7,010 bytes / +0.51%）。
+メンテナンス終了に伴い削除しdlmallocへ回帰した
+（生バイナリで +7,010 bytes / +0.51%、`dx bundle` 後で +6,576 bytes / +1.09%）。
 サイズバジェット640KBに対して余裕があり、実用上の影響はない。
